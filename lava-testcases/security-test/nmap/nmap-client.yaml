@@ -1,0 +1,19 @@
+metadata:
+  name: nmap
+  format: "Lava-Test Test Definition 1.0"
+  description: "Run fio on RISC-V device"
+  maintainer:
+    - zhangju@iscas.ac.cn
+  os:
+    - openEuler-riscv64
+  scope:
+      - security
+  devices:
+    - qemu
+
+run:
+  steps:
+    - cd lava-testcases/security-test/nmap
+    - bash nmap-client.sh
+    - chmod +x ../../utils/send-to-lava.sh
+    - ../../utils/send-to-lava.sh ./output/result.txt

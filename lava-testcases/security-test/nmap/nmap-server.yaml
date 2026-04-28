@@ -14,6 +14,6 @@ metadata:
 run:
   steps:
     - cd lava-testcases/security-test/nmap
-    - bash nmap.sh
+    - bash nmap-server.sh
     - chmod +x ../../utils/send-to-lava.sh
     - ../../utils/send-to-lava.sh ./output/result.txt

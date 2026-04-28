@@ -6,10 +6,18 @@ OUTPUT="$(pwd)/output"
 mkdir -p "$OUTPUT"
 RESULT_FILE="${OUTPUT}/result.txt"
 
+#环境准备
+
+SERVER_IP="10.0.0.2"
+nmcli c a type Ethernet con-name eth0 ifname eth0 && nmcli c m eth0 ipv4.address $SERVER_IP/24 && nmcli c m eth0 ipv4.method manual &&  nmcli c up eth0
+lava-wait client_ip
+TARGET=$(grep -oP 'ip=\K[^ ]+' /tmp/lava_multi_node_cache.txt)
+ping -c 4 $TARGET
+
 # 安装测试工具
 which nmap || dnf install -y nmap
 
-TARGET="127.0.0.1"
+
 #扫描开放端口
 nmap -sS -sV -p- --open $TARGET -oN port_scan.txt
 OPEN_PORTS=$(grep "^[0-9]*/tcp" port_scan.txt | awk '{print $1}' | cut -d/ -f1)
@@ -59,3 +67,5 @@ for port in $OPEN_PORTS; do
     fi
   fi
 done
+
+lava-send server_done
