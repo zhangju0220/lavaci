@@ -1,0 +1,21 @@
+metadata:
+  name: linpeas
+  format: "Lava-Test Test Definition 1.0"
+  description: "Run fio on RISC-V device"
+  maintainer:
+    - zhangju@iscas.ac.cn
+  os:
+    - openEuler-riscv64
+  scope:
+      - security
+  devices:
+    - qemu
+    - lpi4a
+    - sg2042
+    - spacemit-k1-bananapi-f3
+run:
+  steps:
+    - cd lava-testcases/security-test/linpeas
+    - bash linpeas.sh
+    - chmod +x ../../utils/send-to-lava.sh
+    - ../../utils/send-to-lava.sh ./output/result.txt
