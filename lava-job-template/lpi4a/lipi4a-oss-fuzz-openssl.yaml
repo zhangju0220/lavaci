@@ -1,0 +1,62 @@
+device_type: lpi4a
+job_name: ${job_name}
+timeouts:
+  job:
+    minutes: 10250
+  action:
+   minutes: 10249
+  actions:
+    power-off:
+      seconds: 60
+priority: medium
+visibility: public
+metadata:
+  # please change these fields when modifying this job for your own tests.
+  format: Lava-Test Test Definition 1.0
+  name: lpi4a-test
+  description: "test for lpi4a"
+  version: "1.0"
+# ACTION_BLOCK
+actions:
+# DEPLOY_BLOCK
+- deploy:
+    timeout:
+      minutes: 120
+    to: tftp
+    dtb:
+      url: ${dtb_url}
+    kernel:
+      url: ${kernel_image_url}
+      type: image
+    nfsrootfs:
+      url: ${rootfs_image_url}
+      compression: gz
+# BOOT_BLOCK
+- boot:
+    timeout:
+      minutes: 20
+    method: u-boot
+    commands: nfs
+    soft_reboot:
+    - root
+    - openEuler
+    - reboot
+    - The system will reboot now!
+    prompts: ["root@riscv64", "login:", "Password:"]
+    auto_login:
+      login_prompt: "(.*)riscv64 login:(.*)"
+      username: root
+      password_prompt: "Password:"
+      password: openEuler12#$
+# TEST_BLOCK
+- test:
+      timeout:
+        minutes: 10109
+      definitions:
+        - repository: ${testcase_repo}
+          from: git
+          name: ${testitem_name}
+          path: ${testcase_path}
+      parameters:
+         FUZZTIME: ${FUZZTIME}  #fuzzing测试时间，单位为s
+         MAILBOX: ${MAILBOX}  #crash.zip文件发送的邮件地址

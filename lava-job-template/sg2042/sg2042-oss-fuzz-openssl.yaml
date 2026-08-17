@@ -1,0 +1,74 @@
+device_type: sg2042
+job_name: ${job_name}
+timeouts:
+  job:
+    minutes: 10300
+  action:
+   minutes: 10299
+  actions:
+    power-off:
+      seconds: 60
+priority: medium
+visibility: public
+metadata:
+  # please change these fields when modifying this job for your own tests.
+  format: Lava-Test Test Definition 1.0
+  name: sg2042-test
+  description: "test for sg2042"
+  version: "1.0"
+# ACTION_BLOCK
+actions:
+- command:
+    name: pre_os_command
+    timeout:
+      minutes: 20
+# DEPLOY_BLOCK
+- deploy:
+    timeout:
+      minutes: 120
+    to: tftp
+    kernel:
+      url: ${kernel_image_url}
+      type: image
+    ramdisk:
+      url: ${ramdisk_url}
+      install_overlay: False
+      install_modules: False
+    dtb:
+      url: ${dtb_url}
+    persistent_nfs:
+      address: "{FILE_SERVER_IP}:/var/lib/lava/dispatcher/tmp/sg2042_rootfs"
+- command:
+    name: pxelinux_generate
+    timeout:
+      minutes: 20
+# BOOT_BLOCK
+- boot:
+    timeout:
+      minutes: 30
+    method: u-boot
+    commands:
+      - "dhclient -ipv6=false eth0"
+      - "pxeboot -file tftp://{SERVER_IP}/pxelinux.cfg -server {SERVER_IP}"
+    soft_reboot:
+    - root
+    - openEuler
+    - reboot
+    - The system will reboot now!
+    prompts: ["root@riscv64", "login:", "Password:"]
+    auto_login:
+      login_prompt: "(.*)riscv64 login:(.*)"
+      username: root
+      password_prompt: "Password:"
+      password: openEuler12#$
+- test:
+      timeout:
+        minutes: 10109
+      definitions:
+        - repository: ${testcase_repo}
+          from: git
+          name: ${testitem_name}
+          path: ${testcase_path}
+      parameters:
+         FUZZTIME: ${FUZZTIME}  #fuzzing测试时间，单位为s
+         MAILBOX: ${MAILBOX}  #crash.zip文件发送的邮件地址
